@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<title></title>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<style>
+		.pagination-container{
+			margin-top: 30px;
+			text-align: center;
+		}
+		.pagination{
+			display: inline-block;
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+		.pagination:after{
+			display: block;
+			content: "";
+			clear:both;
+		}
+		.pagination > li{
+			float: left;
+			margin: 0;
+			padding: 0;
+		}
+		.pagination > li + li{
+			margin-left: 10px;
+		}
+		.pagination > li > a{
+			display: inline-block;
+			text-decoration: none;
+			padding: 10px;
+			border: solid 1px transparent;
+			border-radius: 20%;
+			background-color: #E4E4E5;
+			color: #021E4A;
+
+		}
+		.pagination > li.active > a{
+			background-color: #009DDF;
+			color: #FFFFFF;
+			cursor: default;
+		}
+		.pagination > li.disabled > a{
+			background-color: #E4E4E5;
+			color: #FFFFFF;
+			cursor: default;
+		}
+	</style>
+</head>
+<body>
+<div class="pagination-container">
+	<ol class="jsc-pagination pagination">
+		<li class="jsc-previous disabled"><a href="#"><</a></li>
+		<li class="active"><a href="1">1</a></li>
+		<li><a href="2">2</a></li>
+		<li><a href="3">3</a></li>
+		<li><a href="4">4</a></li>
+		<li><a href="5">5</a></li>
+		<li><a href="6">6</a></li>
+		<li><a href="7">7</a></li>
+		<li><a href="8">8</a></li>
+		<li><a href="9">9</a></li>
+		<li><a href="10">10</a></li>
+		<li class="jsc-next"><a href="#">></a></li>
+	</ol>
+</div>
+<div class="pagination-container">
+	<ol class="jsc-pagination pagination">
+		<li class="jsc-previous disabled"><a href="#"><</a></li>
+		<li class="active"><a href="1">1</a></li>
+		<li><a href="2">2</a></li>
+		<li><a href="3">3</a></li>
+		<li><a href="4">4</a></li>
+		<li><a href="5">5</a></li>
+		<li><a href="6">6</a></li>
+		<li><a href="7">7</a></li>
+		<li><a href="8">8</a></li>
+		<li><a href="9">9</a></li>
+		<li><a href="10">10</a></li>
+		<li class="jsc-next"><a href="#">></a></li>
+	</ol>
+</div>
+<div class="pagination-container">
+	<ol class="jsc-pagination pagination">
+		<li class="jsc-previous disabled"><a href="#"><</a></li>
+		<li class="active"><a href="1">1</a></li>
+		<li><a href="2">2</a></li>
+		<li><a href="3">3</a></li>
+		<li><a href="4">4</a></li>
+		<li><a href="5">5</a></li>
+		<li class="jsc-next"><a href="#">></a></li>
+	</ol>
+</div>
+</body>
+<script>
+
+var mediator = {
+	init: function(){
+		this.paginationAll = [];
+		var myself = this;
+		$('.pagination-container').each(function(){
+			myself.paginationAll.push(new PAGINATION($(this),myself));
+		});
+	},
+
+	notify: function(index){
+		for(var i=0, length=this.paginationAll.length; i<length; i++){
+			this.paginationAll[i].changePage(index);
+		}
+	}
+};
+
+var PAGINATION = function($wrapper, mediator){
+	this.$wrapper = $wrapper;
+	this.mediator = mediator;
+	this.init();
+};
+
+PAGINATION.prototype = {
+
+	init: function(){
+		this.setParameter();
+		this.bindEvent();
+	},
+
+	setParameter: function(){
+		this.$container   = this.$wrapper.find('.jsc-pagination');
+		this.$prevTrigger = this.$wrapper.find('.jsc-previous');
+		this.$nextTrigger = this.$wrapper.find('.jsc-next');
+		this.$numBtns     = this.$container.find('li').not(':first').not(':last');
+		this.pageCount    = this.$numBtns.length-1;
+		this.selectedIndex= 0;
+	},
+
+	bindEvent: function(){
+		var myself = this;
+		this.$numBtns.each(function(index){
+			var $self = $(this);
+
+			$self.on('click',function(e){
+				e.preventDefault();
+				myself.selectPageNum(index);
+			});
+		});
+		 this.$prevTrigger.on('click',$.proxy(this.moveToLeft,this));
+		 this.$nextTrigger.on('click',$.proxy(this.moveToRight,this));
+	},
+
+	selectPageNum: function(index){
+		this.selectedIndex = index;
+		this.mediator.notify(this.selectedIndex);
+	},
+
+	moveToLeft: function(){
+		this.selectedIndex = Math.max(0, this.selectedIndex - 1);
+		this.mediator.notify(this.selectedIndex);
+	},
+
+	moveToRight: function(){
+		this.selectedIndex = Math.min(this.pageCount, this.selectedIndex + 1);
+		this.mediator.notify(this.selectedIndex);
+	},
+
+	changePage: function(index){
+		this.selectedIndex = Math.min(this.pageCount, index);
+		this.$numBtns.each(function(){
+			$(this).removeClass('active');
+		});
+		this.$numBtns.eq(this.selectedIndex).addClass('active');
+//could set in a different function
+		if(this.selectedIndex == 0){
+			this.$prevTrigger.addClass('disabled');
+		}else{
+			this.$prevTrigger.removeClass('disabled');
+		}
+
+		if(this.selectedIndex == this.pageCount){
+			this.$nextTrigger.addClass('disabled');
+		}else{
+			this.$nextTrigger.removeClass('disabled');
+		}
+
+	}
+};
+
+$(function(){
+	mediator.init();
+});
+
+
+</script>
+</html>
